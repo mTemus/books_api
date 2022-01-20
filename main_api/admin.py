@@ -3,6 +3,6 @@ from main_api.models import Book, Author, Category
 
 # Register your models here.
 
-admin.register(Book)
-admin.register(Author)
-admin.register(Category)
+admin.site.register(Book)
+admin.site.register(Author)
+admin.site.register(Category)
