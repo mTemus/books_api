@@ -10,9 +10,6 @@ class Book(models.Model):
     average_raging = models.IntegerField()
     ratings_count = models.IntegerField()
 
-    class Meta:
-        ordering = ['title', 'authors', 'published_date', 'categories', 'average_rating', 'ratings_count', 'thumbnail']
-
     def __str__(self) -> str:
         return self.title
 
