@@ -13,7 +13,7 @@ class Book(models.Model):
         ]
     )
     categories = models.ManyToManyField("Category")
-    average_raging = models.PositiveSmallIntegerField(default=0)
+    average_rating = models.PositiveSmallIntegerField(default=0)
     ratings_count = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self) -> str:
