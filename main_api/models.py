@@ -15,6 +15,7 @@ class Book(models.Model):
     categories = models.ManyToManyField("Category")
     average_rating = models.PositiveSmallIntegerField(default=0)
     ratings_count = models.PositiveSmallIntegerField(default=0)
+    thumbnail = models.CharField(max_length=300, default="")
 
     def __str__(self) -> str:
         return self.title
