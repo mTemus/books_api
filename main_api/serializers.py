@@ -1,4 +1,3 @@
-from dataclasses import fields
 from rest_framework import serializers
 from main_api.models import Book, Author, Category
 
@@ -28,4 +27,8 @@ class BookSerializer(serializers.ModelSerializer):
             "categories",
             "average_rating",
             "ratings_count",
+            "thumbnail",
         ]
+
+class QuerySerializer(serializers.Serializer):
+    q = serializers.CharField()
