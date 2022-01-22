@@ -1,8 +1,9 @@
-from django.shortcuts import render
-from rest_framework import mixins
+from django.http import response, HttpResponse
+from rest_framework import mixins, status
+from rest_framework.decorators import action
 from rest_framework.viewsets import GenericViewSet
 
-from main_api.serializers import BookSerializer, QuerySerializer
+from main_api.serializers import BookSerializer
 from main_api.models import Book
 
 # Create your views here.
@@ -11,12 +12,22 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
     serializer_class = BookSerializer
     queryset = Book.objects.all()
 
-    def get_serializer_class(self):
-        if self.action == "post":
-            return QuerySerializer
+    # def create(self, request, *args, **kwargs):
+    #     print(request.query_params)
 
-        return self.serializer_class
+    #     return HttpResponse("Test POST response.")
 
+    @action(methods=['post'], detail=True, url_path='db', url_name='db')
+    def get_query(self, request):
+        user_query = request.query_params
+
+        if not user_query:
+            return response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            print(user_query)
+            return HttpResponse("Test POST response.")
+
+        
 
 # bulk_create  i bulk_update
 
