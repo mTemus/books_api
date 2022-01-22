@@ -1,28 +1,28 @@
-from django.http import response, HttpResponse
+from django.http import HttpResponse
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.viewsets import GenericViewSet
 
-from main_api.serializers import BookSerializer
+from main_api.serializers import BookSerializer, QuerySerializer
 from main_api.models import Book
 
 # Create your views here.
 
-class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin):
+class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     serializer_class = BookSerializer
     queryset = Book.objects.all()
+    
+    def get_serializer_class(self):
+            if self.action == "post":
+                return QuerySerializer
+            return self.serializer_class
 
-    # def create(self, request, *args, **kwargs):
-    #     print(request.query_params)
-
-    #     return HttpResponse("Test POST response.")
-
-    @action(methods=['post'], detail=True, url_path='db', url_name='db')
+    @action(methods=['post'], detail=False, url_path='db', url_name='db')
     def get_query(self, request):
-        user_query = request.query_params
+        user_query = request.data
 
         if not user_query:
-            return response(status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
         else:
             print(user_query)
             return HttpResponse("Test POST response.")
