@@ -1,5 +1,6 @@
-import requests, json
+import requests
 from django.http import HttpResponse
+from rest_framework.response import Response
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.viewsets import GenericViewSet
@@ -34,37 +35,39 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
         for book_data in books_data:
             authors += [Author(name=author_name) for author_name in book_data.get("authors")]
             categories += [Category(name=category_name) for category_name in book_data.get("categories")]
-            
-            b = [Book(
-                title = book_data.get("title"),
-                published_date = book_data.get("published_date"),
-                average_rating = book_data.get("average_rating"),
-                ratings_count = book_data.get("ratings_count"),
-                thumbnail = book_data.get("thumbnail"),
-            )]
-            
-            books += b
-            print(type(b[0]), b[0], b[0].published_date)
+            books += self.create_book(book_data)
 
+        books_titles = list(set([book.title for book in books]))
+        authors_names = list(set([author.name for author in authors]))
+        category_names = list(set([category.name for category in categories]))
+        
         Author.objects.bulk_create(authors, ignore_conflicts=True)
         Category.objects.bulk_create(categories, ignore_conflicts=True)
         Book.objects.bulk_create(books, ignore_conflicts=True)
+
+        books = list(Book.objects.filter(title__in=books_titles))
+        authors = list(Author.objects.filter(name__in=authors_names))
+        categories = list(Category.objects.filter(name__in=category_names))
         
-        authorrr = Author.objects.get(id=1)
-        boook = Book.objects.all()
+        book_authors = []
+        book_categories = []
 
-        ba = BookAuthor.objects.create(author=authorrr, book=boook[0])
-        ba.save()
+        for book_data in books_data:
+            book = self.get_book(self, book_data)
 
-        # items > 
-        #   volumeInfo >
-        #       authors >
-        #       publishedDate 
-        #       cathegories >
-        #       imageLinks >
-        #           thumbnail
+            for author_data in book_data.get("authors"):
+                author = self.get_element(self, author_data)
+                book_authors += BookAuthor(book, author)
 
-        return HttpResponse(status=status.HTTP_200_OK)
+            for category_data in book_data.get("categories"):
+                category = self.get_element(self, category_data)
+                book_categories += BookCategory(book, category)
+
+        BookAuthor.objects.bulk_create(book_authors)
+        BookCategory.objects.bulk_create(book_categories)
+        
+        serializer = BookSerializer(books, many=True)
+        return Response(serializer.data)
         
     def extract_book_data(self, response_books):
         return [{
@@ -77,7 +80,20 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
                 "thumbnail": book_data["volumeInfo"].get("imageLinks", {}).get("thumbnail"),
             } for book_data in response_books]
         
+    def create_book(self, book_data):
+        return [Book(
+                title = book_data.get("title"),
+                published_date = book_data.get("published_date"),
+                average_rating = book_data.get("average_rating"),
+                ratings_count = book_data.get("ratings_count"),
+                thumbnail = book_data.get("thumbnail"),
+            )]
 
+    def get_book(self, title, collection):
+        return next((Book for book in collection if book.title == title), None)
+
+    def get_element(self, name, collection):
+        return next((element for element in collection if element.name == name), None)
 
 # - bulk_create książek 
 # - bulk_create autorów
