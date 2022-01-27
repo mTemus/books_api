@@ -15,7 +15,7 @@ class Category(models.Model):
         return self.name
 
 class Book(models.Model):
-    title = models.CharField(max_length=1000)
+    title = models.CharField(max_length=1000, unique=True)
     authors = models.ManyToManyField(Author, through='BookAuthor')
     published_date = models.PositiveSmallIntegerField(
         default=1000,
