@@ -53,18 +53,18 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
         book_categories = []
 
         for book_data in books_data:
-            book = self.get_book(self, book_data)
+            book = self.get_book(book_data.get("title"), books)
 
             for author_data in book_data.get("authors"):
-                author = self.get_element(self, author_data)
-                book_authors += BookAuthor(book, author)
+                author = self.get_element(author_data, authors)
+                book_authors += [BookAuthor(book.id, author.id)]
 
             for category_data in book_data.get("categories"):
-                category = self.get_element(self, category_data)
-                book_categories += BookCategory(book, category)
+                category = self.get_element(category_data, categories)
+                book_categories += [BookCategory(book.id, category.id)]
 
-        BookAuthor.objects.bulk_create(book_authors)
-        BookCategory.objects.bulk_create(book_categories)
+        BookAuthor.objects.bulk_create(book_authors, ignore_conflicts=True)
+        BookCategory.objects.bulk_create(book_categories, ignore_conflicts=True)
         
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data)
@@ -90,7 +90,7 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
             )]
 
     def get_book(self, title, collection):
-        return next((Book for book in collection if book.title == title), None)
+        return next((book for book in collection if book.title == title), None)
 
     def get_element(self, name, collection):
         return next((element for element in collection if element.name == name), None)
