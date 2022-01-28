@@ -33,12 +33,12 @@ class Book(models.Model):
         return self.title
 
 class BookAuthor(models.Model):
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    author = models.OneToOneField(Author, on_delete=models.CASCADE)
+    book = models.OneToOneField(Book, on_delete=models.CASCADE)
 
 class BookCategory(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    category = models.OneToOneField(Category, on_delete=models.CASCADE)
+    book = models.OneToOneField(Book, on_delete=models.CASCADE)
 
 
 # docker-compose run web python3 manage.py migrate

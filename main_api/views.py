@@ -75,7 +75,7 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
         return [{
                 "title": book_data["volumeInfo"].get("title"),
                 "authors": book_data["volumeInfo"].get("authors", ["UNKOWN"]),
-                "published_date": book_data["volumeInfo"].get("publishedDate")[0:4],
+                "published_date": book_data["volumeInfo"].get("publishedDate")[:4],
                 "categories": book_data["volumeInfo"].get("categories", ["UNKOWN"]),
                 "average_rating": book_data["volumeInfo"].get("averageRating", 0),
                 "ratings_count": book_data["volumeInfo"].get("ratingCount", 0),
