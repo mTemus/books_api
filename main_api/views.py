@@ -10,6 +10,8 @@ from main_api.models import Book, Author, Category, BookAuthor, BookCategory
 
 # Create your views here.
 
+GOOGLE_API = 'https://www.googleapis.com/books/v1/volumes'
+
 class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     serializer_class = BookSerializer
     queryset = Book.objects.all()
@@ -21,7 +23,7 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
         if not serializer.is_valid():
             return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
         
-        r = requests.get('https://www.googleapis.com/books/v1/volumes', params=query)
+        r = requests.get(GOOGLE_API, params=query)
         
         query_json = r.json()
         response_books = query_json.get("items")
@@ -57,11 +59,11 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
 
             for author_data in book_data.get("authors"):
                 author = self.get_element(author_data, authors)
-                book_authors += [BookAuthor(book.id, author.id)]
+                book_authors += [BookAuthor(author=author, book=book)]
 
             for category_data in book_data.get("categories"):
                 category = self.get_element(category_data, categories)
-                book_categories += [BookCategory(book.id, category.id)]
+                book_categories += [BookCategory(category=category, book=book)]
 
         BookAuthor.objects.bulk_create(book_authors, ignore_conflicts=True)
         BookCategory.objects.bulk_create(book_categories, ignore_conflicts=True)
@@ -73,7 +75,7 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
         return [{
                 "title": book_data["volumeInfo"].get("title"),
                 "authors": book_data["volumeInfo"].get("authors", ["UNKOWN"]),
-                "published_date": book_data["volumeInfo"].get("publishedDate"),
+                "published_date": book_data["volumeInfo"].get("publishedDate")[0:4],
                 "categories": book_data["volumeInfo"].get("categories", ["UNKOWN"]),
                 "average_rating": book_data["volumeInfo"].get("averageRating", 0),
                 "ratings_count": book_data["volumeInfo"].get("ratingCount", 0),
