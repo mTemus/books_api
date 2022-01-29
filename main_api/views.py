@@ -34,10 +34,8 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
         categories = self._create_categories(books_data)
 
         bounded_books = self._bound_book_with_data(books_data, books, authors, categories)
-        book_authors =[BookAuthor(name=book_data["book_author"], author=book_data["author"], book=book_data["book"]) for book_data in bounded_books if book_data["author"] != None]
-        book_categories =[BookCategory(name=book_data["book_category"], category=book_data["category"], book=book_data["book"])  for book_data in bounded_books if book_data["category"] != None]
-
-        [print(ba.author, ":" ,ba.book) for ba in book_authors]
+        book_authors =[BookAuthor(name=book["book_author"], author=book["author"], book=book["book"]) for book in bounded_books if book["author"] != None]
+        book_categories =[BookCategory(name=book["book_category"], category=book["category"], book=book["book"])  for book in bounded_books if book["category"] != None]
 
         BookAuthor.objects.bulk_create(book_authors, ignore_conflicts=True)
         BookCategory.objects.bulk_create(book_categories, ignore_conflicts=True)
