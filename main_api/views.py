@@ -34,8 +34,10 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
         categories = self._create_categories(books_data)
 
         bounded_books = self._bound_book_with_data(books_data, books, authors, categories)
-        book_authors =[BookAuthor(author=book_data["author"], book=book_data["book"]) for book_data in bounded_books if book_data["author"] != None]
-        book_categories =[BookCategory(category=book_data["category"], book=book_data["book"])  for book_data in bounded_books if book_data["category"] != None]
+        book_authors =[BookAuthor(name=book_data["book_author"], author=book_data["author"], book=book_data["book"]) for book_data in bounded_books if book_data["author"] != None]
+        book_categories =[BookCategory(name=book_data["book_category"], category=book_data["category"], book=book_data["book"])  for book_data in bounded_books if book_data["category"] != None]
+
+        [print(ba.author, ":" ,ba.book) for ba in book_authors]
 
         BookAuthor.objects.bulk_create(book_authors, ignore_conflicts=True)
         BookCategory.objects.bulk_create(book_categories, ignore_conflicts=True)
@@ -56,6 +58,8 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
 
     def _prepare_book_date(self, book_date):
         return book_date[:4] if book_date != None else 0
+
+    
 
     def _create_book(self, book_data):
         return Book(
@@ -98,6 +102,8 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
             "book": self._get_book(book.get("title"), books),
             "author": self._get_element(author, authors),
             "category": self._get_element(category, categories),
+            "book_author": author + ' - ' + book.get("title") if author != None else '',
+            "book_category": book.get("title") + " { " + category + " }" if category != None else '',
             }
             for book in books_data for author, category in zip_longest(book.get("authors"), book.get("categories"))
         ]
