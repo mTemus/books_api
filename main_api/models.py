@@ -1,3 +1,4 @@
+from unicodedata import category
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 # Create your models here.
@@ -36,9 +37,14 @@ class BookAuthor(models.Model):
     author = models.OneToOneField(Author, on_delete=models.CASCADE)
     book = models.OneToOneField(Book, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.author.name + ' - ' + self.book.title
+
 class BookCategory(models.Model):
     category = models.OneToOneField(Category, on_delete=models.CASCADE)
     book = models.OneToOneField(Book, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.book.title + " { " + self.category.name + " }"
 
 # docker-compose run web python3 manage.py migrate
