@@ -14,11 +14,16 @@ from main_api.models import Book, Author, Category, BookAuthor, BookCategory
 
 GOOGLE_API = 'https://www.googleapis.com/books/v1/volumes'
 
+
 class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['authors__name', 'published_date']
+
+class QueryGenericViewset(GenericViewSet):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
 
     @action(methods=['post'], detail=False, url_path='db', url_name='db', serializer_class=QuerySerializer)
     def get_query(self, request):
@@ -59,8 +64,6 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
 
     def _prepare_book_date(self, book_date):
         return book_date[:4] if book_date != None else 0
-
-    
 
     def _create_book(self, book_data):
         return Book(
@@ -108,13 +111,3 @@ class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
             }
             for book in books_data for author, category in zip_longest(book.get("authors"), book.get("categories"))
         ]
-
-# - bulk_create książek 
-# - bulk_create autorów
-# - bulk_create kategorii 
-# - wyciągnięcie z bazy książek 
-# - wyciągnięcie z bazy autorów 
-# - wyciągnięcie z bazy kategorii 
-# pogrupowanie ich 
-# - bulk create relacji książki-autorzy 
-# - bulk_create relacji książki-kategorie
