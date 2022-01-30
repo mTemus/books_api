@@ -1,6 +1,7 @@
 from itertools import zip_longest
 import requests
 from django.http import HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework import mixins, status
 from rest_framework.decorators import action
@@ -14,8 +15,10 @@ from main_api.models import Book, Author, Category, BookAuthor, BookCategory
 GOOGLE_API = 'https://www.googleapis.com/books/v1/volumes'
 
 class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
-    serializer_class = BookSerializer
     queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['authors__name', 'published_date']
 
     @action(methods=['post'], detail=False, url_path='db', url_name='db', serializer_class=QuerySerializer)
     def get_query(self, request):
