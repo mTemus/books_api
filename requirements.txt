@@ -1,6 +1,9 @@
 Django
 djangorestframework
 django-filter
+django-heroku
 python-dotenv
 requests
 psycopg2
+gunicorn
+whitenoise
