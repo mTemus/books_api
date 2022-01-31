@@ -3,3 +3,4 @@ djangorestframework
 django-filter
 python-dotenv
 requests
+psycopg2
