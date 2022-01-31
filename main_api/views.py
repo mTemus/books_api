@@ -3,7 +3,7 @@ import requests
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
-from rest_framework import mixins, status
+from rest_framework import mixins, status, filters
 from rest_framework.decorators import action
 from rest_framework.viewsets import GenericViewSet
 
@@ -18,8 +18,9 @@ GOOGLE_API = 'https://www.googleapis.com/books/v1/volumes'
 class BooksGenericViewset(GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['authors__name', 'published_date']
+    ordering_fields = ['published_date']
 
 class QueryGenericViewset(GenericViewSet):
     queryset = Book.objects.all()
